@@ -5,75 +5,100 @@ namespace App\Http\Controllers;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Exception;
 
 class PetController extends Controller
 {
     public function index()
     {
-        $pets = Pet::all();
-        return response()->json(['data' => $pets, 'code' => Response::HTTP_OK, 'message' => 'Pets retrieved successfully']);
+        try {
+            $pets = Pet::all();
+            return response()->json(['data' => $pets, 'code' => Response::HTTP_OK, 'message' => 'Mascotas recuperadas exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al recuperar las mascotas']);
+        }
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:50',
-            'especie' => 'required|string|max:20',
-            'raza' => 'nullable|string|max:20',
-            'sexo' => 'required|in:M,F',
-            'fechaNacimiento' => 'required|date',
-            'numeroAtenciones' => 'required|integer',
-            'enTratamiento' => 'boolean',
-        ]);
-
-        $pet = Pet::create($validated);
-        return response()->json(['data' => $pet, 'code' => Response::HTTP_CREATED, 'message' => 'Pet created successfully']);
+        try {
+            
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:50',
+                'especie' => 'required|string|max:20',
+                'raza' => 'nullable|string|max:20',
+                'sexo' => 'required|in:M,F',
+                'fechaNacimiento' => 'required|date',
+                'numeroAtenciones' => 'required|integer',
+                'enTratamiento' => 'boolean',
+            ]);
+            $pet = Pet::create($validated);
+            return response()->json(['data' => $pet, 'code' => Response::HTTP_CREATED, 'message' => 'Mascota creada exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al crear la mascota']);
+        }
     }
 
     public function show($id)
     {
-        $pet = Pet::find($id);
-        if (!$pet) {
-            return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Pet not found']);
+        try {
+            $pet = Pet::find($id);
+            if (!$pet) {
+                return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Mascota no encontrada']);
+            }
+            return response()->json(['data' => $pet, 'code' => Response::HTTP_OK, 'message' => 'Mascota recuperada exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al recuperar la mascota']);
         }
-        return response()->json(['data' => $pet, 'code' => Response::HTTP_OK, 'message' => 'Pet retrieved successfully']);
     }
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:50',
-            'especie' => 'required|string|max:20',
-            'raza' => 'nullable|string|max:20',
-            'sexo' => 'required|in:M,F',
-            'fechaNacimiento' => 'required|date',
-            'numeroAtenciones' => 'required|integer',
-            'enTratamiento' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:50',
+                'especie' => 'required|string|max:20',
+                'raza' => 'nullable|string|max:20',
+                'sexo' => 'required|in:M,F',
+                'fechaNacimiento' => 'required|date',
+                'numeroAtenciones' => 'required|integer',
+                'enTratamiento' => 'boolean',
+            ]);
 
-        $pet = Pet::find($id);
-        if (!$pet) {
-            return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Pet not found']);
+            $pet = Pet::find($id);
+            if (!$pet) {
+                return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Mascota no encontrada']);
+            }
+
+            $pet->update($validated);
+            return response()->json(['data' => $pet, 'code' => Response::HTTP_OK, 'message' => 'Mascota actualizada exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al actualizar la mascota']);
         }
-
-        $pet->update($validated);
-        return response()->json(['data' => $pet, 'code' => Response::HTTP_OK, 'message' => 'Pet updated successfully']);
     }
 
     public function destroy($id)
     {
-        $pet = Pet::find($id);
-        if (!$pet) {
-            return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Pet not found']);
-        }
+        try {
+            $pet = Pet::find($id);
+            if (!$pet) {
+                return response()->json(['data' => null, 'code' => Response::HTTP_NOT_FOUND, 'message' => 'Mascota no encontrada']);
+            }
 
-        $pet->delete();
-        return response()->json(['data' => null, 'code' => Response::HTTP_OK, 'message' => 'Pet deleted successfully']);
+            $pet->delete();
+            return response()->json(['data' => null, 'code' => Response::HTTP_OK, 'message' => 'Mascota eliminada exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al eliminar la mascota']);
+        }
     }
 
     public function filtrarPorEspecie($especie)
     {
-        $pets = Pet::where('especie', $especie)->get();
-        return response()->json(['data' => $pets, 'code' => Response::HTTP_OK, 'message' => 'Pets filtered by species retrieved successfully']);
+        try {
+            $pets = Pet::where('especie', $especie)->get();
+            return response()->json(['data' => $pets, 'code' => Response::HTTP_OK, 'message' => 'Mascotas filtradas por especie recuperadas exitosamente']);
+        } catch (Exception $e) {
+            return response()->json(['data' => null, 'code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Error al filtrar las mascotas por especie']);
+        }
     }
 }
